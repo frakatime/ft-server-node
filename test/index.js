@@ -4,8 +4,8 @@ const BASE_URL = 'http://localhost:3000';
 const API_BASE = '/api/v1';
 const USERNAME = 'user';
 const PASSWORD = 'passwd';
-const AUTH_HEADER = 'Basic ' + Buffer.from(`${USERNAME}:${PASSWORD}`).toString('base64');
-const INVALID_AUTH = 'Basic ' + Buffer.from('wrong:credentials').toString('base64');
+const AUTH_HEADER = 'Basic ' + Buffer.from(`${USERNAME} ${PASSWORD}`).toString('base64');
+const INVALID_AUTH = 'Basic ' + Buffer.from('wrong credentials').toString('base64');
 
 let passed = 0;
 let failed = 0;
