@@ -21,7 +21,7 @@ export function decodeBasicAuth(header: string): {
         const b64Creds = header.replace('Basic ', '');
         const creds = Buffer.from(b64Creds, 'base64').toString('utf-8');
 
-        const [username, password] = creds.split(':');
+        const [username, password] = creds.split(' ');
         return { username, password };
     } catch {
         return null;
