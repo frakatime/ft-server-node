@@ -1,69 +1,46 @@
-import { existsSync, readFileSync, writeFileSync } from 'fs';
-
+import Database from 'better-sqlite3';
 
 export class DBV1 {
-    private filePath: string;
+    private db: Database.Database;
 
     constructor() {
-        this.filePath = process.env.FT_DB || 'db.json';
-        this.ensureFileExists();
+        const dbPath = process.env.FT_DB || 'frakatime.db';
+        this.db = new Database(dbPath);
+        this.initDatabase();
     }
 
-    private ensureFileExists(): void {
-        if (!existsSync(this.filePath)) {
-            writeFileSync(this.filePath, JSON.stringify({}, null, 2));
-        }
+    private initDatabase(): void {
+        this.db.exec(`
+            CREATE TABLE IF NOT EXISTS services_v1 (
+                service TEXT PRIMARY KEY,
+                time INTEGER NOT NULL DEFAULT 0
+            )
+        `);
     }
 
     getService(service: string): string | null {
-        this.ensureFileExists();
-        const data = JSON.parse(readFileSync(this.filePath, 'utf-8'));
-        return data[service] || null;
+        const row = this.db.prepare('SELECT time FROM services_v1 WHERE service = ?').get(service) as { time: number } | undefined;
+        return row ? row.time.toString() : null;
     }
 
     createService(service: string): void {
-        this.ensureFileExists();
-        const data = JSON.parse(readFileSync(this.filePath, 'utf-8'));
-
-        data[service] = '0';
-        writeFileSync(this.filePath, JSON.stringify(data, null, 2));
+        this.db.prepare('INSERT INTO services_v1 (service, time) VALUES (?, 0)').run(service);
     }
 
     updateService(oldName: string, newName: string): void {
-        this.ensureFileExists();
-        const data = JSON.parse(readFileSync(this.filePath, 'utf-8'));
-
-        if (data[oldName] !== undefined) {
-            data[newName] = data[oldName];
-            delete data[oldName];
-            writeFileSync(this.filePath, JSON.stringify(data, null, 2));
-        }
+        this.db.prepare('UPDATE services_v1 SET service = ? WHERE service = ?').run(newName, oldName);
     }
 
     deleteService(service: string): void {
-        this.ensureFileExists();
-        const data = JSON.parse(readFileSync(this.filePath, 'utf-8'));
-
-        if (data[service] !== undefined) {
-            delete data[service];
-            writeFileSync(this.filePath, JSON.stringify(data, null, 2));
-        }
+        this.db.prepare('DELETE FROM services_v1 WHERE service = ?').run(service);
     }
 
     incrementTime(service: string): void {
-        this.ensureFileExists();
-        const data = JSON.parse(readFileSync(this.filePath, 'utf-8'));
-
-        if (data[service] !== undefined) {
-            const currentTime = parseInt(data[service]) || 0;
-            data[service] = (currentTime + 1).toString();
-            writeFileSync(this.filePath, JSON.stringify(data, null, 2));
-        }
+        this.db.prepare('UPDATE services_v1 SET time = time + 1 WHERE service = ?').run(service);
     }
 
     serviceExists(service: string): boolean {
-        this.ensureFileExists();
-        const data = JSON.parse(readFileSync(this.filePath, 'utf-8'));
-        return data[service] !== undefined;
+        const row = this.db.prepare('SELECT 1 FROM services_v1 WHERE service = ?').get(service);
+        return row !== undefined;
     }
 }

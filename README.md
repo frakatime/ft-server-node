@@ -15,6 +15,6 @@ pnpm start
 ```
 FT_USERNAME=user
 FT_PASSWORD=passwd
-FT_DB=db.json
+FT_DB=db.sqlite
 FT_VERSION=V2 # (or V1)
 ```
