@@ -1,8 +1,5 @@
 # `ft-server-node`
 Implementation of the [Frakatime specification](https://github.com/frakatime/spec) in NodeJS
->[!WARNING]
-> Currently, `ft-server-node` only implements `v1` of the spec, `v2` will be added ASAP.
-
 
 ## Usage
 ```sh
@@ -19,4 +16,5 @@ pnpm start
 FT_USERNAME=user
 FT_PASSWORD=passwd
 FT_DB=db.json
+FT_VERSION=V2 # (or V1)
 ```
